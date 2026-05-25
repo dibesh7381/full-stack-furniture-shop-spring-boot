@@ -1,5 +1,10 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useRef, useState } from "react";
+
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import productAPI from "../api/productAPI";
 
@@ -14,25 +19,38 @@ import {
 } from "lucide-react";
 
 const SellerDashboard = () => {
+
   const formRef = useRef(null);
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] =
+    useState([]);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
-  const [editProductId, setEditProductId] = useState(null);
+  const [editProductId, setEditProductId] =
+    useState(null);
 
-  const [formData, setFormData] = useState({
-    type: "",
-    stock: "",
-    price: "",
-    image: null,
-  });
+  const [formData, setFormData] =
+    useState({
+      type: "",
+      stock: "",
+      price: "",
+      image: null,
+    });
+
+  /* Input Handler */
 
   const inputHandler = (e) => {
-    const { name, value, files } = e.target;
+
+    const {
+      name,
+      value,
+      files,
+    } = e.target;
 
     if (name === "image") {
+
       setFormData({
         ...formData,
         image: files[0],
@@ -47,19 +65,33 @@ const SellerDashboard = () => {
     });
   };
 
+  /* Get Products */
+
   const getMyProducts = async () => {
+
     try {
-      const token = localStorage.getItem("token");
 
-      const response = await productAPI.get("/my-products", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const token =
+        localStorage.getItem("token");
 
-      setProducts(response.data.data);
+      const response =
+        await productAPI.get(
+          "/my-products",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+      setProducts(
+        response.data.data
+      );
+
     } catch (error) {
+
       console.log(error);
+
     }
   };
 
@@ -67,39 +99,91 @@ const SellerDashboard = () => {
     getMyProducts();
   }, []);
 
+  /* Submit */
+
   const submitHandler = async (e) => {
+
     e.preventDefault();
 
     try {
+
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      const token =
+        localStorage.getItem("token");
 
-      const data = new FormData();
+      const data =
+        new FormData();
 
-      data.append("type", formData.type);
+      data.append(
+        "type",
+        formData.type
+      );
 
-      data.append("stock", formData.stock);
+      data.append(
+        "stock",
+        formData.stock
+      );
 
-      data.append("price", formData.price);
+      data.append(
+        "price",
+        formData.price
+      );
 
       if (formData.image) {
-        data.append("image", formData.image);
+
+        data.append(
+          "image",
+          formData.image
+        );
       }
 
+      /* UPDATE */
+
       if (editProductId) {
-        await productAPI.put(`/${editProductId}`, data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+
+        const response =
+          await productAPI.put(
+            `/${editProductId}`,
+            data,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+        setProducts((prev) =>
+          prev.map((product) =>
+            product.id ===
+            editProductId
+              ? response.data.data
+              : product
+          )
+        );
+
       } else {
-        await productAPI.post("/add", data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+
+        /* ADD */
+
+        const response =
+          await productAPI.post(
+            "/add",
+            data,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+        setProducts((prev) => [
+          response.data.data,
+          ...prev,
+        ]);
       }
+
+      /* Reset */
 
       setFormData({
         type: "",
@@ -108,36 +192,66 @@ const SellerDashboard = () => {
         image: null,
       });
 
-      document.getElementById("imageInput").value = "";
+      document.getElementById(
+        "imageInput"
+      ).value = "";
 
       setEditProductId(null);
 
-      getMyProducts();
     } catch (error) {
+
       console.log(error);
+
     } finally {
+
       setLoading(false);
     }
   };
 
-  const deleteHandler = async (productId) => {
+  /* Delete */
+
+  const deleteHandler = async (
+    productId
+  ) => {
+
     try {
-      const token = localStorage.getItem("token");
 
-      await productAPI.delete(`/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const token =
+        localStorage.getItem("token");
 
-      getMyProducts();
+      await productAPI.delete(
+        `/${productId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setProducts((prev) =>
+        prev.filter(
+          (product) =>
+            product.id !==
+            productId
+        )
+      );
+
     } catch (error) {
+
       console.log(error);
+
     }
   };
 
-  const editHandler = (product) => {
-    setEditProductId(product.id);
+  /* Edit */
+
+  const editHandler = (
+    product
+  ) => {
+
+    setEditProductId(
+      product.id
+    );
 
     setFormData({
       type: product.type,
@@ -153,164 +267,291 @@ const SellerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#f5efe6] px-4 py-8">
+
       <div className="max-w-7xl mx-auto">
+
         {/* Form */}
 
         <div
           ref={formRef}
           className="bg-white rounded-3xl shadow-lg p-6 md:p-8 mb-10"
         >
+
           <h2 className="text-3xl font-bold text-[#3e2c23] mb-8">
-            {editProductId ? "Update Product" : "Add Product"}
+
+            {editProductId
+              ? "Update Product"
+              : "Add Product"}
+
           </h2>
 
           <form
-            onSubmit={submitHandler}
+            onSubmit={
+              submitHandler
+            }
             className="grid grid-cols-1 md:grid-cols-2 gap-5"
           >
+
             {/* Type */}
 
-            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 flex items-center gap-3">
-              <Package size={20} className="text-[#7a685d]" />
+            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 h-[60px] flex items-center gap-3">
+
+              <Package
+                size={20}
+                className="text-[#7a685d] shrink-0"
+              />
 
               <select
                 name="type"
-                value={formData.type}
-                onChange={inputHandler}
-                className="w-full bg-transparent py-4 outline-none"
+                value={
+                  formData.type
+                }
+                onChange={
+                  inputHandler
+                }
+                className="w-full bg-transparent outline-none"
               >
-                <option value="">Select Type</option>
 
-                <option value="BED">Bed</option>
+                <option value="">
+                  Select Type
+                </option>
 
-                <option value="TABLE">Table</option>
+                <option value="BED">
+                  Bed
+                </option>
 
-                <option value="CHAIR">Chair</option>
+                <option value="TABLE">
+                  Table
+                </option>
+
+                <option value="CHAIR">
+                  Chair
+                </option>
+
               </select>
+
             </div>
 
             {/* Stock */}
 
-            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 flex items-center gap-3">
-              <Boxes size={20} className="text-[#7a685d]" />
+            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 h-[60px] flex items-center gap-3">
+
+              <Boxes
+                size={20}
+                className="text-[#7a685d] shrink-0"
+              />
 
               <input
                 type="text"
                 name="stock"
                 placeholder="Stock"
-                value={formData.stock}
+                value={
+                  formData.stock
+                }
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
+
+                  const value =
+                    e.target.value.replace(
+                      /\D/g,
+                      ""
+                    );
 
                   setFormData({
                     ...formData,
                     stock: value,
                   });
                 }}
-                className="w-full bg-transparent py-4 outline-none"
+                className="w-full bg-transparent outline-none"
               />
+
             </div>
 
             {/* Price */}
 
-            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 flex items-center gap-3">
-              <IndianRupee size={20} className="text-[#7a685d]" />
+            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 h-[60px] flex items-center gap-3">
+
+              <IndianRupee
+                size={20}
+                className="text-[#7a685d] shrink-0"
+              />
 
               <input
                 type="text"
                 name="price"
                 placeholder="Price"
-                value={formData.price}
+                value={
+                  formData.price
+                }
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
+
+                  const value =
+                    e.target.value.replace(
+                      /\D/g,
+                      ""
+                    );
 
                   setFormData({
                     ...formData,
                     price: value,
                   });
                 }}
-                className="w-full bg-transparent py-4 outline-none"
+                className="w-full bg-transparent outline-none"
               />
+
             </div>
 
             {/* Image */}
 
-            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 flex items-center gap-3">
-              <ImagePlus size={20} className="text-[#7a685d]" />
+            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 h-[60px] flex items-center gap-3 overflow-hidden">
+
+              <ImagePlus
+                size={20}
+                className="text-[#7a685d] shrink-0"
+              />
 
               <input
                 id="imageInput"
                 type="file"
                 name="image"
-                onChange={inputHandler}
-                className="w-full py-4 outline-none"
+                onChange={
+                  inputHandler
+                }
+                className="w-full text-sm"
               />
+
             </div>
 
             {/* Button */}
 
             <button
               disabled={loading}
-              className="md:col-span-2 bg-[#3e2c23] hover:bg-[#2d1f18] transition text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 disabled:opacity-70"
+              className="md:col-span-2 bg-[#3e2c23] hover:bg-[#2d1f18] transition text-white h-[58px] rounded-2xl font-semibold flex items-center justify-center gap-2 disabled:opacity-70"
             >
-              {loading && <LoaderCircle size={20} className="animate-spin" />}
 
-              {editProductId ? "Update Product" : "Add Product"}
+              {loading && (
+
+                <LoaderCircle
+                  size={20}
+                  className="animate-spin"
+                />
+
+              )}
+
+              {editProductId
+                ? "Update Product"
+                : "Add Product"}
+
             </button>
+
           </form>
+
         </div>
 
         {/* Products */}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+
           {products.map((product) => (
+
             <div
               key={product.id}
-              className="bg-white rounded-3xl overflow-hidden shadow-lg"
+              className="bg-white rounded-3xl overflow-hidden shadow-lg flex flex-col h-full"
             >
-              <img
-                src={product.imageUrl}
-                alt={product.type}
-                className="w-full h-[300px] object-cover"
-              />
 
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-[#3e2c23]">
+              {/* Image */}
+
+              <div className="h-[300px] overflow-hidden">
+
+                <img
+                  src={
+                    product.imageUrl
+                  }
+                  alt={
+                    product.type
+                  }
+                  className="w-full h-full object-cover"
+                />
+
+              </div>
+
+              {/* Content */}
+
+              <div className="p-5 flex flex-col flex-1">
+
+                {/* Top */}
+
+                <div className="flex items-start justify-between gap-3 mb-4 min-h-[72px]">
+
+                  <h2 className="text-2xl font-bold text-[#3e2c23] break-words leading-tight flex-1">
                     {product.type}
                   </h2>
 
-                  <span className="bg-[#f5efe6] px-3 py-1 rounded-full text-sm font-medium">
+                  <span className="bg-[#f5efe6] min-w-[90px] h-[38px] px-3 rounded-full text-sm font-medium flex items-center justify-center shrink-0">
                     Stock {product.stock}
                   </span>
+
                 </div>
 
-                <h3 className="text-xl font-semibold mb-5">
-                  ₹ {product.price}
-                </h3>
+                {/* Price */}
 
-                <div className="flex gap-3">
+                <div className="min-h-[50px] flex items-center mb-5">
+
+                  <h3 className="text-2xl font-bold text-[#3e2c23] break-all">
+                    ₹ {product.price}
+                  </h3>
+
+                </div>
+
+                {/* Buttons */}
+
+                <div className="flex gap-3 mt-auto">
+
                   <button
-                    onClick={() => editHandler(product)}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 transition text-white py-3 rounded-2xl flex items-center justify-center gap-2"
+                    onClick={() =>
+                      editHandler(
+                        product
+                      )
+                    }
+                    className="flex-1 bg-blue-500 hover:bg-blue-600 transition text-white h-[52px] rounded-2xl flex items-center justify-center gap-2"
                   >
-                    <Pencil size={18} />
+
+                    <Pencil
+                      size={18}
+                    />
+
                     Update
+
                   </button>
 
                   <button
-                    onClick={() => deleteHandler(product.id)}
-                    className="flex-1 bg-red-500 hover:bg-red-600 transition text-white py-3 rounded-2xl flex items-center justify-center gap-2"
+                    onClick={() =>
+                      deleteHandler(
+                        product.id
+                      )
+                    }
+                    className="flex-1 bg-red-500 hover:bg-red-600 transition text-white h-[52px] rounded-2xl flex items-center justify-center gap-2"
                   >
-                    <Trash2 size={18} />
+
+                    <Trash2
+                      size={18}
+                    />
+
                     Delete
+
                   </button>
+
                 </div>
+
               </div>
+
             </div>
+
           ))}
+
         </div>
+
       </div>
+
     </div>
   );
 };
