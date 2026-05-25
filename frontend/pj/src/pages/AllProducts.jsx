@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 
+import { motion } from "framer-motion";
+
 import productAPI from "../api/productAPI";
 import { addProductToCart } from "../redux/cartSlice";
 
@@ -15,6 +17,7 @@ import {
 } from "lucide-react";
 
 const AllProducts = () => {
+
   const dispatch = useDispatch();
 
   const [products, setProducts] = useState([]);
@@ -25,14 +28,21 @@ const AllProducts = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+
     if (token) {
-      const decoded = jwtDecode(token);
+
+      const decoded =
+        jwtDecode(token);
+
       setRole(decoded.role);
     }
+
   }, [token]);
 
   const getAllProducts = async () => {
+
     try {
+
       const response =
         await productAPI.get(
           "/all-products"
@@ -41,6 +51,7 @@ const AllProducts = () => {
       setProducts(response.data.data);
 
     } catch (error) {
+
       console.log(error);
     }
   };
@@ -61,7 +72,6 @@ const AllProducts = () => {
         addProductToCart(productId)
       );
 
-      // Local state update only
       setProducts((prevProducts) =>
         prevProducts.map((product) =>
           product.id === productId
@@ -114,10 +124,31 @@ const AllProducts = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
 
-            {products.map((product) => (
+            {products.map((product, index) => (
 
-              <div
+              <motion.div
                 key={product.id}
+
+                initial={{
+                  opacity: 0,
+                  y: 80,
+                }}
+
+                whileInView={{
+                  opacity: 1,
+                  y: 0,
+                }}
+
+                viewport={{
+                  once: true,
+                  amount: 0.2,
+                }}
+
+                transition={{
+                  duration: 0.6,
+                  delay: index * 0.08,
+                }}
+
                 className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
               >
 
@@ -248,7 +279,7 @@ const AllProducts = () => {
 
                 </div>
 
-              </div>
+              </motion.div>
 
             ))}
 

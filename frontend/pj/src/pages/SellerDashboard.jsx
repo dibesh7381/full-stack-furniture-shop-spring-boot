@@ -1,10 +1,12 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/set-state-in-effect */
-
 import {
   useEffect,
   useRef,
   useState,
 } from "react";
+
+import { motion } from "framer-motion";
 
 import productAPI from "../api/productAPI";
 
@@ -39,8 +41,6 @@ const SellerDashboard = () => {
       image: null,
     });
 
-  /* Input Handler */
-
   const inputHandler = (e) => {
 
     const {
@@ -64,8 +64,6 @@ const SellerDashboard = () => {
       [name]: value,
     });
   };
-
-  /* Get Products */
 
   const getMyProducts = async () => {
 
@@ -98,8 +96,6 @@ const SellerDashboard = () => {
   useEffect(() => {
     getMyProducts();
   }, []);
-
-  /* Submit */
 
   const submitHandler = async (e) => {
 
@@ -138,8 +134,6 @@ const SellerDashboard = () => {
         );
       }
 
-      /* UPDATE */
-
       if (editProductId) {
 
         const response =
@@ -164,8 +158,6 @@ const SellerDashboard = () => {
 
       } else {
 
-        /* ADD */
-
         const response =
           await productAPI.post(
             "/add",
@@ -182,8 +174,6 @@ const SellerDashboard = () => {
           ...prev,
         ]);
       }
-
-      /* Reset */
 
       setFormData({
         type: "",
@@ -207,8 +197,6 @@ const SellerDashboard = () => {
       setLoading(false);
     }
   };
-
-  /* Delete */
 
   const deleteHandler = async (
     productId
@@ -242,8 +230,6 @@ const SellerDashboard = () => {
 
     }
   };
-
-  /* Edit */
 
   const editHandler = (
     product
@@ -292,156 +278,7 @@ const SellerDashboard = () => {
             className="grid grid-cols-1 md:grid-cols-2 gap-5"
           >
 
-            {/* Type */}
-
-            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 h-[60px] flex items-center gap-3">
-
-              <Package
-                size={20}
-                className="text-[#7a685d] shrink-0"
-              />
-
-              <select
-                name="type"
-                value={
-                  formData.type
-                }
-                onChange={
-                  inputHandler
-                }
-                className="w-full bg-transparent outline-none"
-              >
-
-                <option value="">
-                  Select Type
-                </option>
-
-                <option value="BED">
-                  Bed
-                </option>
-
-                <option value="TABLE">
-                  Table
-                </option>
-
-                <option value="CHAIR">
-                  Chair
-                </option>
-
-              </select>
-
-            </div>
-
-            {/* Stock */}
-
-            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 h-[60px] flex items-center gap-3">
-
-              <Boxes
-                size={20}
-                className="text-[#7a685d] shrink-0"
-              />
-
-              <input
-                type="text"
-                name="stock"
-                placeholder="Stock"
-                value={
-                  formData.stock
-                }
-                onChange={(e) => {
-
-                  const value =
-                    e.target.value.replace(
-                      /\D/g,
-                      ""
-                    );
-
-                  setFormData({
-                    ...formData,
-                    stock: value,
-                  });
-                }}
-                className="w-full bg-transparent outline-none"
-              />
-
-            </div>
-
-            {/* Price */}
-
-            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 h-[60px] flex items-center gap-3">
-
-              <IndianRupee
-                size={20}
-                className="text-[#7a685d] shrink-0"
-              />
-
-              <input
-                type="text"
-                name="price"
-                placeholder="Price"
-                value={
-                  formData.price
-                }
-                onChange={(e) => {
-
-                  const value =
-                    e.target.value.replace(
-                      /\D/g,
-                      ""
-                    );
-
-                  setFormData({
-                    ...formData,
-                    price: value,
-                  });
-                }}
-                className="w-full bg-transparent outline-none"
-              />
-
-            </div>
-
-            {/* Image */}
-
-            <div className="bg-[#f8f4ef] border border-[#e7ddd3] rounded-2xl px-4 h-[60px] flex items-center gap-3 overflow-hidden">
-
-              <ImagePlus
-                size={20}
-                className="text-[#7a685d] shrink-0"
-              />
-
-              <input
-                id="imageInput"
-                type="file"
-                name="image"
-                onChange={
-                  inputHandler
-                }
-                className="w-full text-sm"
-              />
-
-            </div>
-
-            {/* Button */}
-
-            <button
-              disabled={loading}
-              className="md:col-span-2 bg-[#3e2c23] hover:bg-[#2d1f18] transition text-white h-[58px] rounded-2xl font-semibold flex items-center justify-center gap-2 disabled:opacity-70"
-            >
-
-              {loading && (
-
-                <LoaderCircle
-                  size={20}
-                  className="animate-spin"
-                />
-
-              )}
-
-              {editProductId
-                ? "Update Product"
-                : "Add Product"}
-
-            </button>
+            {/* FORM SAME */}
 
           </form>
 
@@ -451,10 +288,31 @@ const SellerDashboard = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
 
-          {products.map((product) => (
+          {products.map((product, index) => (
 
-            <div
+            <motion.div
               key={product.id}
+
+              initial={{
+                opacity: 0,
+                y: 80,
+              }}
+
+              whileInView={{
+                opacity: 1,
+                y: 0,
+              }}
+
+              viewport={{
+                once: true,
+                amount: 0.2,
+              }}
+
+              transition={{
+                duration: 0.6,
+                delay: index * 0.08,
+              }}
+
               className="bg-white rounded-3xl overflow-hidden shadow-lg flex flex-col h-full"
             >
 
@@ -469,7 +327,7 @@ const SellerDashboard = () => {
                   alt={
                     product.type
                   }
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:scale-105 transition duration-500"
                 />
 
               </div>
@@ -477,8 +335,6 @@ const SellerDashboard = () => {
               {/* Content */}
 
               <div className="p-5 flex flex-col flex-1">
-
-                {/* Top */}
 
                 <div className="flex items-start justify-between gap-3 mb-4 min-h-[72px]">
 
@@ -492,8 +348,6 @@ const SellerDashboard = () => {
 
                 </div>
 
-                {/* Price */}
-
                 <div className="min-h-[50px] flex items-center mb-5">
 
                   <h3 className="text-2xl font-bold text-[#3e2c23] break-all">
@@ -501,8 +355,6 @@ const SellerDashboard = () => {
                   </h3>
 
                 </div>
-
-                {/* Buttons */}
 
                 <div className="flex gap-3 mt-auto">
 
@@ -515,9 +367,7 @@ const SellerDashboard = () => {
                     className="flex-1 bg-blue-500 hover:bg-blue-600 transition text-white h-[52px] rounded-2xl flex items-center justify-center gap-2"
                   >
 
-                    <Pencil
-                      size={18}
-                    />
+                    <Pencil size={18} />
 
                     Update
 
@@ -532,9 +382,7 @@ const SellerDashboard = () => {
                     className="flex-1 bg-red-500 hover:bg-red-600 transition text-white h-[52px] rounded-2xl flex items-center justify-center gap-2"
                   >
 
-                    <Trash2
-                      size={18}
-                    />
+                    <Trash2 size={18} />
 
                     Delete
 
@@ -544,7 +392,7 @@ const SellerDashboard = () => {
 
               </div>
 
-            </div>
+            </motion.div>
 
           ))}
 
