@@ -7,6 +7,9 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import BecomeSeller from "./pages/BecomeSeller";
+import SellerDashboard from "./pages/SellerDashboard";
+import AllProducts from "./pages/AllProducts";
+import Cart from "./pages/Cart";
 
 const App = () => {
 
@@ -40,6 +43,21 @@ const App = () => {
         <Route
           path="/become-seller"
           element={<BecomeSeller />}
+        />
+
+        <Route
+          path="/seller-dashboard"
+          element={<SellerDashboard />}
+        />
+
+        <Route
+          path="/products"
+          element={<AllProducts />}
+        />
+
+        <Route
+          path="/cart"
+          element={<Cart />}
         />
 
       </Routes>
