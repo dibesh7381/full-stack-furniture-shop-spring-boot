@@ -10,6 +10,8 @@ import {
   Code2,
 } from "lucide-react";
 
+import { motion } from "framer-motion";
+
 const Home = () => {
 
   const features = [
@@ -93,8 +95,20 @@ const Home = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {features.map((item, index) => (
-          <div
+          <motion.div
             key={index}
+
+            initial={{ opacity: 0, y: 80 }}
+
+            whileInView={{ opacity: 1, y: 0 }}
+
+            viewport={{ once: true, amount: 0.2 }}
+
+            transition={{
+              duration: 0.6,
+              delay: index * 0.1,
+            }}
+
             className="bg-white/80 backdrop-blur-md border border-[#e7ddd3] rounded-3xl p-7 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
           >
 
@@ -112,7 +126,7 @@ const Home = () => {
               {item.desc}
             </p>
 
-          </div>
+          </motion.div>
         ))}
 
       </div>
