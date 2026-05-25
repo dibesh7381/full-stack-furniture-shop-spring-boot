@@ -2,11 +2,21 @@
 
 import { useEffect, useState } from "react";
 
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 import { jwtDecode } from "jwt-decode";
 
-import { useSelector } from "react-redux";
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
+
+import {
+  fetchCartItems,
+} from "../redux/cartSlice";
 
 import {
   Menu,
@@ -18,32 +28,68 @@ const Navbar = () => {
 
   const navigate = useNavigate();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useDispatch();
 
-  const [role, setRole] = useState("");
+  const [isOpen, setIsOpen] =
+    useState(false);
 
-  const token = localStorage.getItem("token");
+  const [role, setRole] =
+    useState("");
+
+  const token =
+    localStorage.getItem("token");
 
   const cartItems = useSelector(
     (state) => state.cart.cartItems
   );
 
-  const cartCount = cartItems.length;
+  const cartCount =
+    cartItems.length;
+
+  /* Decode JWT */
 
   useEffect(() => {
 
     if (token) {
 
-      const decoded = jwtDecode(token);
+      const decoded =
+        jwtDecode(token);
 
       setRole(decoded.role);
+
+    } else {
+
+      setRole("");
     }
 
   }, [token]);
 
+  /* Fetch Cart */
+
+  useEffect(() => {
+
+    if (
+      token &&
+      role === "USER"
+    ) {
+
+      dispatch(fetchCartItems());
+
+    }
+
+  }, [
+    dispatch,
+    token,
+    role,
+  ]);
+
+  /* Logout */
+
   const logoutHandler = () => {
 
-    localStorage.removeItem("token");
+    localStorage.removeItem(
+      "token"
+    );
 
     navigate("/login");
 
@@ -62,7 +108,7 @@ const Navbar = () => {
 
           <Link
             to="/"
-            className="text-xl md:text-2xl font-bold text-black tracking-tight"
+            className="text-xl md:text-2xl font-bold text-black tracking-tight shrink-0"
           >
             FurnitureShop
           </Link>
@@ -79,16 +125,19 @@ const Navbar = () => {
             </Link>
 
             {token && (
+
               <Link
                 to="/products"
                 className="text-gray-700 hover:text-black transition"
               >
                 Products
               </Link>
+
             )}
 
             {!token && (
               <>
+
                 <Link
                   to="/signup"
                   className="text-gray-700 hover:text-black transition"
@@ -98,10 +147,11 @@ const Navbar = () => {
 
                 <Link
                   to="/login"
-                  className="bg-black text-white px-5 py-2 rounded-xl hover:opacity-90 transition"
+                  className="bg-black text-white px-5 h-[44px] rounded-xl hover:opacity-90 transition flex items-center justify-center"
                 >
                   Login
                 </Link>
+
               </>
             )}
 
@@ -114,10 +164,10 @@ const Navbar = () => {
 
                   <Link
                     to="/cart"
-                    className="relative"
+                    className="relative shrink-0"
                   >
 
-                    <div className="bg-[#f5efe6] hover:bg-[#ebe1d5] transition p-3 rounded-2xl">
+                    <div className="bg-[#f5efe6] hover:bg-[#ebe1d5] transition h-[48px] w-[48px] rounded-2xl flex items-center justify-center">
 
                       <ShoppingCart
                         size={22}
@@ -128,7 +178,7 @@ const Navbar = () => {
 
                     {cartCount > 0 && (
 
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] min-w-[22px] h-[22px] rounded-full flex items-center justify-center font-semibold px-1">
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] min-w-[22px] h-[22px] rounded-full flex items-center justify-center font-semibold px-1 shrink-0">
                         {cartCount}
                       </span>
 
@@ -146,17 +196,21 @@ const Navbar = () => {
                 </Link>
 
                 {role === "SELLER" && (
+
                   <Link
                     to="/seller-dashboard"
-                    className="bg-green-500 text-white px-5 py-2 rounded-xl hover:bg-green-600 transition"
+                    className="bg-green-500 text-white px-5 h-[44px] rounded-xl hover:bg-green-600 transition flex items-center justify-center"
                   >
                     Seller Dashboard
                   </Link>
+
                 )}
 
                 <button
-                  onClick={logoutHandler}
-                  className="bg-red-500 text-white px-5 py-2 rounded-xl hover:bg-red-600 transition"
+                  onClick={
+                    logoutHandler
+                  }
+                  className="bg-red-500 text-white px-5 h-[44px] rounded-xl hover:bg-red-600 transition"
                 >
                   Logout
                 </button>
@@ -172,41 +226,49 @@ const Navbar = () => {
 
             {/* Cart */}
 
-            {token && role === "USER" && (
+            {token &&
+              role === "USER" && (
 
-              <Link
-                to="/cart"
-                className="relative"
-              >
+                <Link
+                  to="/cart"
+                  className="relative shrink-0"
+                >
 
-                <div className="bg-[#f5efe6] p-2.5 rounded-2xl">
+                  <div className="bg-[#f5efe6] h-[46px] w-[46px] rounded-2xl flex items-center justify-center">
 
-                  <ShoppingCart
-                    size={22}
-                    className="text-[#3e2c23]"
-                  />
+                    <ShoppingCart
+                      size={22}
+                      className="text-[#3e2c23]"
+                    />
 
-                </div>
+                  </div>
 
-                {cartCount > 0 && (
+                  {cartCount >
+                    0 && (
 
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] min-w-[20px] h-[20px] rounded-full flex items-center justify-center font-semibold">
-                    {cartCount}
-                  </span>
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] min-w-[20px] h-[20px] rounded-full flex items-center justify-center font-semibold">
+                      {
+                        cartCount
+                      }
+                    </span>
 
-                )}
+                  )}
 
-              </Link>
+                </Link>
 
-            )}
+              )}
 
             {/* Hamburger */}
 
             <button
-              onClick={() => setIsOpen(true)}
-              className="text-black"
+              onClick={() =>
+                setIsOpen(true)
+              }
+              className="text-black shrink-0"
             >
+
               <Menu size={28} />
+
             </button>
 
           </div>
@@ -218,7 +280,9 @@ const Navbar = () => {
       {/* Overlay */}
 
       <div
-        onClick={() => setIsOpen(false)}
+        onClick={() =>
+          setIsOpen(false)
+        }
         className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-all duration-300 ${
           isOpen
             ? "opacity-100 visible"
@@ -245,10 +309,14 @@ const Navbar = () => {
           </h2>
 
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={() =>
+              setIsOpen(false)
+            }
             className="text-black"
           >
+
             <X size={28} />
+
           </button>
 
         </div>
@@ -259,7 +327,9 @@ const Navbar = () => {
 
           <Link
             to="/"
-            onClick={() => setIsOpen(false)}
+            onClick={() =>
+              setIsOpen(false)
+            }
             className="text-gray-700 hover:text-black transition py-2"
           >
             Home
@@ -267,9 +337,12 @@ const Navbar = () => {
 
           {!token && (
             <>
+
               <Link
                 to="/signup"
-                onClick={() => setIsOpen(false)}
+                onClick={() =>
+                  setIsOpen(false)
+                }
                 className="text-gray-700 hover:text-black transition py-2"
               >
                 Signup
@@ -277,11 +350,14 @@ const Navbar = () => {
 
               <Link
                 to="/login"
-                onClick={() => setIsOpen(false)}
-                className="bg-black text-white text-center py-3 rounded-xl font-semibold mt-2"
+                onClick={() =>
+                  setIsOpen(false)
+                }
+                className="bg-black text-white text-center h-[50px] rounded-xl font-semibold mt-2 flex items-center justify-center"
               >
                 Login
               </Link>
+
             </>
           )}
 
@@ -290,7 +366,9 @@ const Navbar = () => {
 
               <Link
                 to="/profile"
-                onClick={() => setIsOpen(false)}
+                onClick={() =>
+                  setIsOpen(false)
+                }
                 className="text-gray-700 hover:text-black transition py-2"
               >
                 Profile
@@ -298,25 +376,34 @@ const Navbar = () => {
 
               <Link
                 to="/products"
-                onClick={() => setIsOpen(false)}
+                onClick={() =>
+                  setIsOpen(false)
+                }
                 className="text-gray-700 hover:text-black transition py-2"
               >
                 Products
               </Link>
 
-              {role === "SELLER" && (
+              {role ===
+                "SELLER" && (
+
                 <Link
                   to="/seller-dashboard"
-                  onClick={() => setIsOpen(false)}
-                  className="bg-green-500 text-white text-center py-3 rounded-xl font-semibold mt-2"
+                  onClick={() =>
+                    setIsOpen(false)
+                  }
+                  className="bg-green-500 text-white text-center h-[50px] rounded-xl font-semibold mt-2 flex items-center justify-center"
                 >
                   Seller Dashboard
                 </Link>
+
               )}
 
               <button
-                onClick={logoutHandler}
-                className="bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition mt-2"
+                onClick={
+                  logoutHandler
+                }
+                className="bg-red-500 text-white h-[50px] rounded-xl font-semibold hover:bg-red-600 transition mt-2"
               >
                 Logout
               </button>
@@ -327,6 +414,7 @@ const Navbar = () => {
         </div>
 
       </div>
+
     </>
   );
 };
