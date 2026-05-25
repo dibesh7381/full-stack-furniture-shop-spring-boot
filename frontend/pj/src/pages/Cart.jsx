@@ -34,7 +34,7 @@ const Cart = () => {
 
     dispatch(fetchCartItems());
 
-  }, []);
+  }, [dispatch]);
 
   const totalAmount = cartItems.reduce(
     (total, item) =>
@@ -111,12 +111,12 @@ const Cart = () => {
 
                 <div
                   key={item.cartId}
-                  className="bg-white rounded-3xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-[260px_1fr]"
+                  className="bg-white rounded-3xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-[280px_1fr]"
                 >
 
                   {/* Image */}
 
-                  <div className="w-full h-[280px] sm:h-[340px] md:h-full bg-[#f8f4ef] overflow-hidden flex items-center justify-center">
+                  <div className="w-full h-[280px] sm:h-[350px] md:h-full bg-[#f8f4ef] flex items-center justify-center overflow-hidden">
 
                     <img
                       src={item.imageUrl}
@@ -134,7 +134,7 @@ const Cart = () => {
 
                     <div>
 
-                      <div className="flex items-start justify-between gap-4 min-h-[95px]">
+                      <div className="flex items-start justify-between gap-4 min-h-[100px]">
 
                         <div className="flex-1 min-w-0">
 
@@ -170,7 +170,7 @@ const Cart = () => {
 
                       {/* Price */}
 
-                      <div className="h-[60px] flex items-center mt-2 mb-6">
+                      <div className="h-[60px] flex items-center mt-3 mb-6">
 
                         <h3 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] whitespace-nowrap font-mono">
                           ₹ {item.price}
@@ -184,7 +184,7 @@ const Cart = () => {
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
 
-                      {/* Quantity Box */}
+                      {/* Quantity */}
 
                       <div className="bg-[#f8f4ef] rounded-2xl h-[60px] px-4 flex items-center justify-between gap-4 w-full sm:w-[220px] min-w-[220px] shrink-0">
 
@@ -224,7 +224,7 @@ const Cart = () => {
 
                       </div>
 
-                      {/* Total Price */}
+                      {/* Total */}
 
                       <div className="w-full sm:w-[240px] h-[60px] flex items-center sm:justify-end shrink-0">
 

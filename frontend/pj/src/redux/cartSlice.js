@@ -17,11 +17,111 @@ const cartSlice = createSlice({
 
       state.cartItems = action.payload;
     },
+
+    increaseQuantityLocal: (
+      state,
+      action
+    ) => {
+
+      const item =
+        state.cartItems.find(
+          (cartItem) =>
+            cartItem.cartId ===
+            action.payload
+        );
+
+      if (item) {
+
+        item.quantity += 1;
+
+        item.totalPrice =
+          item.quantity *
+          item.price;
+      }
+    },
+
+    decreaseQuantityLocal: (
+      state,
+      action
+    ) => {
+
+      const item =
+        state.cartItems.find(
+          (cartItem) =>
+            cartItem.cartId ===
+            action.payload
+        );
+
+      if (
+        item &&
+        item.quantity > 1
+      ) {
+
+        item.quantity -= 1;
+
+        item.totalPrice =
+          item.quantity *
+          item.price;
+      }
+    },
+
+    deleteCartLocal: (
+      state,
+      action
+    ) => {
+
+      state.cartItems =
+        state.cartItems.filter(
+          (item) =>
+            item.cartId !==
+            action.payload
+        );
+    },
+
+    clearCartLocal: (
+      state
+    ) => {
+
+      state.cartItems = [];
+    },
+
+    addToCartLocal: (
+      state,
+      action
+    ) => {
+
+      const existingItem =
+        state.cartItems.find(
+          (item) =>
+            item.cartId ===
+            action.payload.cartId
+        );
+
+      if (existingItem) {
+
+        existingItem.quantity += 1;
+
+        existingItem.totalPrice =
+          existingItem.quantity *
+          existingItem.price;
+
+      } else {
+
+        state.cartItems.push(
+          action.payload
+        );
+      }
+    },
   },
 });
 
 export const {
   setCart,
+  increaseQuantityLocal,
+  decreaseQuantityLocal,
+  deleteCartLocal,
+  clearCartLocal,
+  addToCartLocal,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
@@ -38,17 +138,20 @@ export const fetchCartItems =
       const token =
         localStorage.getItem("token");
 
-      const response = await cartAPI.get(
-        "",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response =
+        await cartAPI.get(
+          "",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
       dispatch(
-        setCart(response.data.data)
+        setCart(
+          response.data.data
+        )
       );
 
     } catch (error) {
@@ -58,24 +161,30 @@ export const fetchCartItems =
   };
 
 export const addProductToCart =
-  (productId) => async (dispatch) => {
+  (productId) =>
+  async (dispatch) => {
 
     try {
 
       const token =
         localStorage.getItem("token");
 
-      await cartAPI.post(
-        `/${productId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response =
+        await cartAPI.post(
+          `/${productId}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      dispatch(fetchCartItems());
+      dispatch(
+        addToCartLocal(
+          response.data.data
+        )
+      );
 
     } catch (error) {
 
@@ -84,7 +193,8 @@ export const addProductToCart =
   };
 
 export const increaseCartQuantity =
-  (cartId) => async (dispatch) => {
+  (cartId) =>
+  async (dispatch) => {
 
     try {
 
@@ -101,7 +211,11 @@ export const increaseCartQuantity =
         }
       );
 
-      dispatch(fetchCartItems());
+      dispatch(
+        increaseQuantityLocal(
+          cartId
+        )
+      );
 
     } catch (error) {
 
@@ -110,7 +224,8 @@ export const increaseCartQuantity =
   };
 
 export const decreaseCartQuantity =
-  (cartId) => async (dispatch) => {
+  (cartId) =>
+  async (dispatch) => {
 
     try {
 
@@ -127,7 +242,11 @@ export const decreaseCartQuantity =
         }
       );
 
-      dispatch(fetchCartItems());
+      dispatch(
+        decreaseQuantityLocal(
+          cartId
+        )
+      );
 
     } catch (error) {
 
@@ -136,7 +255,8 @@ export const decreaseCartQuantity =
   };
 
 export const deleteCartProduct =
-  (cartId) => async (dispatch) => {
+  (cartId) =>
+  async (dispatch) => {
 
     try {
 
@@ -152,7 +272,11 @@ export const deleteCartProduct =
         }
       );
 
-      dispatch(fetchCartItems());
+      dispatch(
+        deleteCartLocal(
+          cartId
+        )
+      );
 
     } catch (error) {
 
@@ -177,7 +301,9 @@ export const clearAllCart =
         }
       );
 
-      dispatch(fetchCartItems());
+      dispatch(
+        clearCartLocal()
+      );
 
     } catch (error) {
 
