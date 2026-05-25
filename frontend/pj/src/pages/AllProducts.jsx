@@ -1,13 +1,10 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { useEffect, useState } from "react";
-
 import { useDispatch } from "react-redux";
-
 import { jwtDecode } from "jwt-decode";
 
 import productAPI from "../api/productAPI";
-
 import { addProductToCart } from "../redux/cartSlice";
 
 import {
@@ -18,33 +15,24 @@ import {
 } from "lucide-react";
 
 const AllProducts = () => {
-
   const dispatch = useDispatch();
 
   const [products, setProducts] = useState([]);
-
   const [role, setRole] = useState("");
-
   const [loadingId, setLoadingId] =
     useState(null);
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-
     if (token) {
-
       const decoded = jwtDecode(token);
-
       setRole(decoded.role);
     }
-
   }, [token]);
 
   const getAllProducts = async () => {
-
     try {
-
       const response =
         await productAPI.get(
           "/all-products"
@@ -53,7 +41,6 @@ const AllProducts = () => {
       setProducts(response.data.data);
 
     } catch (error) {
-
       console.log(error);
     }
   };
@@ -74,7 +61,20 @@ const AllProducts = () => {
         addProductToCart(productId)
       );
 
-      getAllProducts();
+      // Local state update only
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId
+            ? {
+                ...product,
+                stock:
+                  product.stock > 0
+                    ? product.stock - 1
+                    : 0,
+              }
+            : product
+        )
+      );
 
     } catch (error) {
 
@@ -112,23 +112,23 @@ const AllProducts = () => {
 
         {products.length > 0 ? (
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
 
             {products.map((product) => (
 
               <div
                 key={product.id}
-                className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col"
+                className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
               >
 
                 {/* Image */}
 
-                <div className="overflow-hidden">
+                <div className="overflow-hidden h-[300px]">
 
                   <img
                     src={product.imageUrl}
                     alt={product.type}
-                    className="w-full h-[300px] object-cover hover:scale-105 transition duration-500"
+                    className="w-full h-full object-cover hover:scale-105 transition duration-500"
                   />
 
                 </div>
@@ -137,11 +137,11 @@ const AllProducts = () => {
 
                 <div className="p-5 flex flex-col flex-1">
 
-                  <div className="flex items-start justify-between gap-3 mb-4 min-h-[64px]">
+                  <div className="flex items-start justify-between gap-3 mb-4 min-h-[70px]">
 
                     <div className="flex-1 overflow-hidden">
 
-                      <h2 className="text-2xl font-bold text-[#3e2c23] capitalize break-words">
+                      <h2 className="text-2xl font-bold text-[#3e2c23] capitalize break-words leading-tight">
                         {product.type}
                       </h2>
 
@@ -164,7 +164,7 @@ const AllProducts = () => {
 
                   {/* Price */}
 
-                  <div className="min-h-[48px] flex items-center mb-6">
+                  <div className="min-h-[55px] flex items-center mb-6">
 
                     <h3 className="text-3xl font-bold text-[#3e2c23] break-all">
                       ₹ {product.price}
@@ -174,20 +174,22 @@ const AllProducts = () => {
 
                   {/* Buttons */}
 
-                  <div className="flex gap-3 min-h-[52px] mt-auto">
+                  <div className="flex gap-3 mt-auto">
 
                     <button
                       disabled={
                         isSeller ||
-                        loadingId === product.id
+                        loadingId === product.id ||
+                        product.stock === 0
                       }
                       onClick={() =>
                         addToCartHandler(
                           product.id
                         )
                       }
-                      className={`flex-1 min-w-0 py-3 rounded-2xl flex items-center justify-center gap-2 font-medium transition ${
-                        isSeller
+                      className={`flex-1 h-[52px] rounded-2xl flex items-center justify-center gap-2 font-medium transition ${
+                        isSeller ||
+                        product.stock === 0
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-[#3e2c23] hover:bg-[#2b1d16] text-white"
                       }`}
@@ -211,15 +213,21 @@ const AllProducts = () => {
                       )}
 
                       <span className="truncate">
-                        Cart
+                        {product.stock === 0
+                          ? "Out"
+                          : "Cart"}
                       </span>
 
                     </button>
 
                     <button
-                      disabled={isSeller}
-                      className={`flex-1 min-w-0 py-3 rounded-2xl flex items-center justify-center gap-2 font-medium transition ${
-                        isSeller
+                      disabled={
+                        isSeller ||
+                        product.stock === 0
+                      }
+                      className={`flex-1 h-[52px] rounded-2xl flex items-center justify-center gap-2 font-medium transition ${
+                        isSeller ||
+                        product.stock === 0
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-amber-500 hover:bg-amber-600 text-white"
                       }`}
