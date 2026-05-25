@@ -20,15 +20,27 @@ import {
   Plus,
   Trash2,
   ShoppingBag,
+  LoaderCircle,
 } from "lucide-react";
 
 const Cart = () => {
 
   const dispatch = useDispatch();
 
-  const cartItems = useSelector(
-    (state) => state.cart.cartItems
+  const {
+    cartItems,
+    loading,
+  } = useSelector(
+    (state) => state.cart
   );
+
+  /* Stable Order */
+
+  const stableCartItems =
+    [...cartItems].sort(
+      (a, b) =>
+        a.cartId - b.cartId
+    );
 
   useEffect(() => {
 
@@ -36,11 +48,12 @@ const Cart = () => {
 
   }, [dispatch]);
 
-  const totalAmount = cartItems.reduce(
-    (total, item) =>
-      total + item.totalPrice,
-    0
-  );
+  const totalAmount =
+    stableCartItems.reduce(
+      (total, item) =>
+        total + item.totalPrice,
+      0
+    );
 
   return (
     <div className="min-h-screen bg-[#f5efe6] px-3 sm:px-4 py-6 sm:py-8">
@@ -63,24 +76,36 @@ const Cart = () => {
 
           </div>
 
-          {cartItems.length > 0 && (
+          {stableCartItems.length > 0 && (
 
             <button
+              disabled={loading}
               onClick={() =>
                 dispatch(clearAllCart())
               }
-              className="bg-red-500 hover:bg-red-600 transition text-white px-6 h-[52px] rounded-2xl font-medium shrink-0 w-full sm:w-fit"
+              className="bg-red-500 hover:bg-red-600 disabled:opacity-70 transition text-white px-6 h-[52px] rounded-2xl font-medium shrink-0 w-full sm:w-fit flex items-center justify-center gap-2"
             >
+
+              {loading && (
+
+                <LoaderCircle
+                  size={18}
+                  className="animate-spin"
+                />
+
+              )}
+
               Clear Cart
+
             </button>
 
           )}
 
         </div>
 
-        {/* Empty Cart */}
+        {/* Empty */}
 
-        {cartItems.length === 0 ? (
+        {stableCartItems.length === 0 ? (
 
           <div className="bg-white rounded-3xl shadow-lg p-8 sm:p-10 flex flex-col items-center justify-center text-center">
 
@@ -103,134 +128,182 @@ const Cart = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            {/* Cart Items */}
+            {/* Left */}
 
             <div className="lg:col-span-2 space-y-6">
 
-              {cartItems.map((item) => (
+              {stableCartItems.map(
+                (item) => (
 
-                <div
-                  key={item.cartId}
-                  className="bg-white rounded-3xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-[280px_1fr]"
-                >
+                  <div
+                    key={
+                      item.cartId
+                    }
+                    className="bg-white rounded-3xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-[280px_1fr]"
+                  >
 
-                  {/* Image */}
+                    {/* Image */}
 
-                  <div className="w-full h-[280px] sm:h-[350px] md:h-full bg-[#f8f4ef] flex items-center justify-center overflow-hidden">
+                    <div className="w-full h-[280px] sm:h-[350px] md:h-full bg-[#f8f4ef] flex items-center justify-center overflow-hidden">
 
-                    <img
-                      src={item.imageUrl}
-                      alt={item.productType}
-                      className="w-full h-full object-contain md:object-cover"
-                    />
+                      <img
+                        src={
+                          item.imageUrl
+                        }
+                        alt={
+                          item.productType
+                        }
+                        className="w-full h-full object-contain md:object-cover"
+                      />
 
-                  </div>
+                    </div>
 
-                  {/* Content */}
+                    {/* Content */}
 
-                  <div className="p-5 sm:p-6 flex flex-col justify-between min-w-0">
+                    <div className="p-5 sm:p-6 flex flex-col justify-between min-w-0">
 
-                    {/* Top */}
+                      {/* Top */}
 
-                    <div>
+                      <div>
 
-                      <div className="flex items-start justify-between gap-4 min-h-[100px]">
+                        <div className="flex items-start justify-between gap-4 min-h-[100px]">
 
-                        <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0">
 
-                          <h2 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] capitalize break-words leading-tight">
-                            {item.productType}
-                          </h2>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] capitalize break-words leading-tight">
+                              {
+                                item.productType
+                              }
+                            </h2>
 
-                          <p className="text-[#7a685d] mt-2 text-sm sm:text-base">
-                            Available Stock : {item.stock}
-                          </p>
+                            <p className="text-[#7a685d] mt-2 text-sm sm:text-base">
+                              Available
+                              Stock
+                              :
+                              {" "}
+                              {
+                                item.stock
+                              }
+                            </p>
+
+                          </div>
+
+                          <button
+                            disabled={
+                              loading
+                            }
+                            onClick={() =>
+                              dispatch(
+                                deleteCartProduct(
+                                  item.cartId
+                                )
+                              )
+                            }
+                            className="bg-red-100 hover:bg-red-200 disabled:opacity-70 transition h-[48px] w-[48px] rounded-xl flex items-center justify-center shrink-0"
+                          >
+
+                            <Trash2
+                              size={
+                                20
+                              }
+                              className="text-red-600"
+                            />
+
+                          </button>
 
                         </div>
 
-                        <button
-                          onClick={() =>
-                            dispatch(
-                              deleteCartProduct(
-                                item.cartId
-                              )
-                            )
-                          }
-                          className="bg-red-100 hover:bg-red-200 transition h-[48px] w-[48px] rounded-xl flex items-center justify-center shrink-0"
-                        >
+                        {/* Price */}
 
-                          <Trash2
-                            size={20}
-                            className="text-red-600"
-                          />
+                        <div className="h-[60px] flex items-center mt-3 mb-6">
 
-                        </button>
+                          <h3 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] whitespace-nowrap font-mono">
+                            ₹
+                            {" "}
+                            {
+                              item.price
+                            }
+                          </h3>
+
+                        </div>
 
                       </div>
 
-                      {/* Price */}
+                      {/* Bottom */}
 
-                      <div className="h-[60px] flex items-center mt-3 mb-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
 
-                        <h3 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] whitespace-nowrap font-mono">
-                          ₹ {item.price}
-                        </h3>
+                        {/* Quantity */}
 
-                      </div>
+                        <div className="bg-[#f8f4ef] rounded-2xl h-[60px] px-4 flex items-center justify-between gap-4 w-full sm:w-[220px] min-w-[220px] shrink-0">
 
-                    </div>
-
-                    {/* Bottom */}
-
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-
-                      {/* Quantity */}
-
-                      <div className="bg-[#f8f4ef] rounded-2xl h-[60px] px-4 flex items-center justify-between gap-4 w-full sm:w-[220px] min-w-[220px] shrink-0">
-
-                        <button
-                          onClick={() =>
-                            dispatch(
-                              decreaseCartQuantity(
-                                item.cartId
+                          <button
+                            disabled={
+                              loading
+                            }
+                            onClick={() =>
+                              dispatch(
+                                decreaseCartQuantity(
+                                  item.cartId
+                                )
                               )
-                            )
-                          }
-                          className="bg-white shadow h-[40px] w-[40px] rounded-xl flex items-center justify-center shrink-0"
-                        >
+                            }
+                            className="bg-white shadow h-[40px] w-[40px] rounded-xl flex items-center justify-center shrink-0 disabled:opacity-50"
+                          >
 
-                          <Minus size={18} />
+                            <Minus
+                              size={
+                                18
+                              }
+                            />
 
-                        </button>
+                          </button>
 
-                        <span className="text-xl font-bold w-[55px] min-w-[55px] text-center shrink-0 font-mono">
-                          {item.quantity}
-                        </span>
+                          <span className="text-xl font-bold w-[55px] min-w-[55px] text-center shrink-0 font-mono">
+                            {
+                              item.quantity
+                            }
+                          </span>
 
-                        <button
-                          onClick={() =>
-                            dispatch(
-                              increaseCartQuantity(
-                                item.cartId
+                          <button
+                            disabled={
+                              loading ||
+                              item.stock ===
+                                0
+                            }
+                            onClick={() =>
+                              dispatch(
+                                increaseCartQuantity(
+                                  item.cartId
+                                )
                               )
-                            )
-                          }
-                          className="bg-white shadow h-[40px] w-[40px] rounded-xl flex items-center justify-center shrink-0"
-                        >
+                            }
+                            className="bg-white shadow h-[40px] w-[40px] rounded-xl flex items-center justify-center shrink-0 disabled:opacity-50"
+                          >
 
-                          <Plus size={18} />
+                            <Plus
+                              size={
+                                18
+                              }
+                            />
 
-                        </button>
+                          </button>
 
-                      </div>
+                        </div>
 
-                      {/* Total */}
+                        {/* Total */}
 
-                      <div className="w-full sm:w-[240px] h-[60px] flex items-center sm:justify-end shrink-0">
+                        <div className="w-full sm:w-[240px] h-[60px] flex items-center sm:justify-end shrink-0">
 
-                        <h2 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] w-full text-left sm:text-right whitespace-nowrap font-mono">
-                          ₹ {item.totalPrice}
-                        </h2>
+                          <h2 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] w-full text-left sm:text-right whitespace-nowrap font-mono">
+                            ₹
+                            {" "}
+                            {
+                              item.totalPrice
+                            }
+                          </h2>
+
+                        </div>
 
                       </div>
 
@@ -238,9 +311,8 @@ const Cart = () => {
 
                   </div>
 
-                </div>
-
-              ))}
+                )
+              )}
 
             </div>
 
@@ -261,7 +333,9 @@ const Cart = () => {
                   </span>
 
                   <span className="font-bold text-xl font-mono">
-                    {cartItems.length}
+                    {
+                      stableCartItems.length
+                    }
                   </span>
 
                 </div>
@@ -273,7 +347,11 @@ const Cart = () => {
                   </span>
 
                   <span className="font-bold text-2xl text-[#3e2c23] whitespace-nowrap font-mono">
-                    ₹ {totalAmount}
+                    ₹
+                    {" "}
+                    {
+                      totalAmount
+                    }
                   </span>
 
                 </div>

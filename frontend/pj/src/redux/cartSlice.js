@@ -1,175 +1,75 @@
-import { createSlice } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createAsyncThunk,
+} from "@reduxjs/toolkit";
 
 import cartAPI from "../api/cartAPI";
 
+/* =========================
+        INITIAL STATE
+========================= */
+
 const initialState = {
   cartItems: [],
+  loading: false,
 };
 
-const cartSlice = createSlice({
-  name: "cart",
-
-  initialState,
-
-  reducers: {
-
-    setCart: (state, action) => {
-
-      state.cartItems = action.payload;
-    },
-
-    increaseQuantityLocal: (
-      state,
-      action
-    ) => {
-
-      const item =
-        state.cartItems.find(
-          (cartItem) =>
-            cartItem.cartId ===
-            action.payload
-        );
-
-      if (item) {
-
-        item.quantity += 1;
-
-        item.totalPrice =
-          item.quantity *
-          item.price;
-      }
-    },
-
-    decreaseQuantityLocal: (
-      state,
-      action
-    ) => {
-
-      const item =
-        state.cartItems.find(
-          (cartItem) =>
-            cartItem.cartId ===
-            action.payload
-        );
-
-      if (
-        item &&
-        item.quantity > 1
-      ) {
-
-        item.quantity -= 1;
-
-        item.totalPrice =
-          item.quantity *
-          item.price;
-      }
-    },
-
-    deleteCartLocal: (
-      state,
-      action
-    ) => {
-
-      state.cartItems =
-        state.cartItems.filter(
-          (item) =>
-            item.cartId !==
-            action.payload
-        );
-    },
-
-    clearCartLocal: (
-      state
-    ) => {
-
-      state.cartItems = [];
-    },
-
-    addToCartLocal: (
-      state,
-      action
-    ) => {
-
-      const existingItem =
-        state.cartItems.find(
-          (item) =>
-            item.cartId ===
-            action.payload.cartId
-        );
-
-      if (existingItem) {
-
-        existingItem.quantity += 1;
-
-        existingItem.totalPrice =
-          existingItem.quantity *
-          existingItem.price;
-
-      } else {
-
-        state.cartItems.push(
-          action.payload
-        );
-      }
-    },
-  },
-});
-
-export const {
-  setCart,
-  increaseQuantityLocal,
-  decreaseQuantityLocal,
-  deleteCartLocal,
-  clearCartLocal,
-  addToCartLocal,
-} = cartSlice.actions;
-
-export default cartSlice.reducer;
-
 /* =========================
-        CART APIS
+        FETCH CART
 ========================= */
 
 export const fetchCartItems =
-  () => async (dispatch) => {
+  createAsyncThunk(
+    "cart/fetchCartItems",
+    async (_, thunkAPI) => {
 
-    try {
+      try {
 
-      const token =
-        localStorage.getItem("token");
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
-      const response =
-        await cartAPI.get(
-          "",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        const response =
+          await cartAPI.get(
+            "",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+        return response.data.data;
+
+      } catch (error) {
+
+        return thunkAPI.rejectWithValue(
+          error.response?.data
         );
-
-      dispatch(
-        setCart(
-          response.data.data
-        )
-      );
-
-    } catch (error) {
-
-      console.log(error);
+      }
     }
-  };
+  );
+
+/* =========================
+        ADD TO CART
+========================= */
 
 export const addProductToCart =
-  (productId) =>
-  async (dispatch) => {
+  createAsyncThunk(
+    "cart/addProductToCart",
+    async (
+      productId,
+      thunkAPI
+    ) => {
 
-    try {
+      try {
 
-      const token =
-        localStorage.getItem("token");
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
-      const response =
         await cartAPI.post(
           `/${productId}`,
           {},
@@ -180,133 +80,243 @@ export const addProductToCart =
           }
         );
 
-      dispatch(
-        addToCartLocal(
-          response.data.data
-        )
-      );
+        thunkAPI.dispatch(
+          fetchCartItems()
+        );
 
-    } catch (error) {
+      } catch (error) {
 
-      console.log(error);
+        return thunkAPI.rejectWithValue(
+          error.response?.data
+        );
+      }
     }
-  };
+  );
+
+/* =========================
+      INCREASE QUANTITY
+========================= */
 
 export const increaseCartQuantity =
-  (cartId) =>
-  async (dispatch) => {
+  createAsyncThunk(
+    "cart/increaseCartQuantity",
+    async (
+      cartId,
+      thunkAPI
+    ) => {
 
-    try {
+      try {
 
-      const token =
-        localStorage.getItem("token");
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
-      await cartAPI.put(
-        `/increase/${cartId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        await cartAPI.put(
+          `/increase/${cartId}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      dispatch(
-        increaseQuantityLocal(
-          cartId
-        )
-      );
+        thunkAPI.dispatch(
+          fetchCartItems()
+        );
 
-    } catch (error) {
+      } catch (error) {
 
-      console.log(error);
+        return thunkAPI.rejectWithValue(
+          error.response?.data
+        );
+      }
     }
-  };
+  );
+
+/* =========================
+      DECREASE QUANTITY
+========================= */
 
 export const decreaseCartQuantity =
-  (cartId) =>
-  async (dispatch) => {
+  createAsyncThunk(
+    "cart/decreaseCartQuantity",
+    async (
+      cartId,
+      thunkAPI
+    ) => {
 
-    try {
+      try {
 
-      const token =
-        localStorage.getItem("token");
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
-      await cartAPI.put(
-        `/decrease/${cartId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        await cartAPI.put(
+          `/decrease/${cartId}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      dispatch(
-        decreaseQuantityLocal(
-          cartId
-        )
-      );
+        thunkAPI.dispatch(
+          fetchCartItems()
+        );
 
-    } catch (error) {
+      } catch (error) {
 
-      console.log(error);
+        return thunkAPI.rejectWithValue(
+          error.response?.data
+        );
+      }
     }
-  };
+  );
+
+/* =========================
+        DELETE PRODUCT
+========================= */
 
 export const deleteCartProduct =
-  (cartId) =>
-  async (dispatch) => {
+  createAsyncThunk(
+    "cart/deleteCartProduct",
+    async (
+      cartId,
+      thunkAPI
+    ) => {
 
-    try {
+      try {
 
-      const token =
-        localStorage.getItem("token");
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
-      await cartAPI.delete(
-        `/${cartId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        await cartAPI.delete(
+          `/${cartId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      dispatch(
-        deleteCartLocal(
-          cartId
-        )
-      );
+        thunkAPI.dispatch(
+          fetchCartItems()
+        );
 
-    } catch (error) {
+      } catch (error) {
 
-      console.log(error);
+        return thunkAPI.rejectWithValue(
+          error.response?.data
+        );
+      }
     }
-  };
+  );
+
+/* =========================
+        CLEAR CART
+========================= */
 
 export const clearAllCart =
-  () => async (dispatch) => {
+  createAsyncThunk(
+    "cart/clearAllCart",
+    async (
+      _,
+      thunkAPI
+    ) => {
 
-    try {
+      try {
 
-      const token =
-        localStorage.getItem("token");
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
-      await cartAPI.delete(
-        "/clear",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        await cartAPI.delete(
+          "/clear",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        return [];
+
+      } catch (error) {
+
+        return thunkAPI.rejectWithValue(
+          error.response?.data
+        );
+      }
+    }
+  );
+
+/* =========================
+        SLICE
+========================= */
+
+const cartSlice = createSlice({
+  name: "cart",
+
+  initialState,
+
+  reducers: {},
+
+  extraReducers: (builder) => {
+
+    builder
+
+      /* FETCH */
+
+      .addCase(
+        fetchCartItems.pending,
+        (state) => {
+
+          state.loading = true;
+        }
+      )
+
+      .addCase(
+        fetchCartItems.fulfilled,
+        (state, action) => {
+
+          state.loading = false;
+
+          /* STABLE ORDER */
+
+          state.cartItems =
+            action.payload.sort(
+              (a, b) =>
+                a.cartId -
+                b.cartId
+            );
+        }
+      )
+
+      .addCase(
+        fetchCartItems.rejected,
+        (state) => {
+
+          state.loading = false;
+        }
+      )
+
+      /* CLEAR */
+
+      .addCase(
+        clearAllCart.fulfilled,
+        (state) => {
+
+          state.cartItems = [];
         }
       );
+  },
+});
 
-      dispatch(
-        clearCartLocal()
-      );
-
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
+export default cartSlice.reducer;
