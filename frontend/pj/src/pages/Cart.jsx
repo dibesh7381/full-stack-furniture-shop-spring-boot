@@ -2,7 +2,10 @@
 
 import { useEffect } from "react";
 
-import { useDispatch, useSelector } from "react-redux";
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
 
 import {
   fetchCartItems,
@@ -28,7 +31,9 @@ const Cart = () => {
   );
 
   useEffect(() => {
+
     dispatch(fetchCartItems());
+
   }, []);
 
   const totalAmount = cartItems.reduce(
@@ -38,21 +43,21 @@ const Cart = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#f5efe6] px-4 py-8">
+    <div className="min-h-screen bg-[#f5efe6] px-3 sm:px-4 py-6 sm:py-8">
 
       <div className="max-w-7xl mx-auto">
 
         {/* Heading */}
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 sm:mb-10">
 
           <div>
 
-            <h1 className="text-4xl md:text-5xl font-bold text-[#3e2c23]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#3e2c23] leading-tight">
               My Cart
             </h1>
 
-            <p className="text-[#7a685d] mt-2">
+            <p className="text-[#7a685d] mt-2 text-sm sm:text-base">
               Manage your furniture cart items
             </p>
 
@@ -64,7 +69,7 @@ const Cart = () => {
               onClick={() =>
                 dispatch(clearAllCart())
               }
-              className="bg-red-500 hover:bg-red-600 transition text-white px-6 h-[52px] rounded-2xl font-medium shrink-0"
+              className="bg-red-500 hover:bg-red-600 transition text-white px-6 h-[52px] rounded-2xl font-medium shrink-0 w-full sm:w-fit"
             >
               Clear Cart
             </button>
@@ -77,14 +82,14 @@ const Cart = () => {
 
         {cartItems.length === 0 ? (
 
-          <div className="bg-white rounded-3xl shadow-lg p-10 flex flex-col items-center justify-center text-center">
+          <div className="bg-white rounded-3xl shadow-lg p-8 sm:p-10 flex flex-col items-center justify-center text-center">
 
             <ShoppingBag
               size={70}
               className="text-[#7a685d] mb-5"
             />
 
-            <h2 className="text-3xl font-bold text-[#3e2c23] mb-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] mb-3">
               Your Cart is Empty
             </h2>
 
@@ -106,41 +111,39 @@ const Cart = () => {
 
                 <div
                   key={item.cartId}
-                  className="bg-white rounded-3xl shadow-lg overflow-hidden flex flex-col sm:flex-row min-h-[260px]"
+                  className="bg-white rounded-3xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-[260px_1fr]"
                 >
 
                   {/* Image */}
 
-                  <div className="w-full sm:w-[220px] h-[260px] shrink-0 overflow-hidden">
+                  <div className="w-full h-[280px] sm:h-[340px] md:h-full bg-[#f8f4ef] overflow-hidden flex items-center justify-center">
 
                     <img
                       src={item.imageUrl}
                       alt={item.productType}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain md:object-cover"
                     />
 
                   </div>
 
                   {/* Content */}
 
-                  <div className="flex-1 p-5 flex flex-col justify-between min-w-0">
+                  <div className="p-5 sm:p-6 flex flex-col justify-between min-w-0">
 
                     {/* Top */}
 
                     <div>
 
-                      <div className="flex items-start justify-between gap-4 mb-4 min-h-[90px]">
+                      <div className="flex items-start justify-between gap-4 min-h-[95px]">
 
-                        <div className="min-w-0 flex-1">
+                        <div className="flex-1 min-w-0">
 
-                          <h2 className="text-3xl font-bold text-[#3e2c23] capitalize break-words leading-tight">
+                          <h2 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] capitalize break-words leading-tight">
                             {item.productType}
                           </h2>
 
-                          <p className="text-[#7a685d] mt-2">
-                            Available Stock :
-                            {" "}
-                            {item.stock}
+                          <p className="text-[#7a685d] mt-2 text-sm sm:text-base">
+                            Available Stock : {item.stock}
                           </p>
 
                         </div>
@@ -153,7 +156,7 @@ const Cart = () => {
                               )
                             )
                           }
-                          className="bg-red-100 hover:bg-red-200 transition p-3 rounded-xl shrink-0 h-[48px] w-[48px] flex items-center justify-center"
+                          className="bg-red-100 hover:bg-red-200 transition h-[48px] w-[48px] rounded-xl flex items-center justify-center shrink-0"
                         >
 
                           <Trash2
@@ -167,9 +170,9 @@ const Cart = () => {
 
                       {/* Price */}
 
-                      <div className="min-h-[50px] flex items-center mb-6">
+                      <div className="h-[60px] flex items-center mt-2 mb-6">
 
-                        <h3 className="text-2xl font-bold text-[#3e2c23] break-all">
+                        <h3 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] whitespace-nowrap font-mono">
                           ₹ {item.price}
                         </h3>
 
@@ -181,9 +184,9 @@ const Cart = () => {
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
 
-                      {/* Quantity */}
+                      {/* Quantity Box */}
 
-                      <div className="flex items-center gap-4 bg-[#f8f4ef] w-fit px-4 h-[60px] rounded-2xl shrink-0">
+                      <div className="bg-[#f8f4ef] rounded-2xl h-[60px] px-4 flex items-center justify-between gap-4 w-full sm:w-[220px] min-w-[220px] shrink-0">
 
                         <button
                           onClick={() =>
@@ -193,14 +196,14 @@ const Cart = () => {
                               )
                             )
                           }
-                          className="bg-white shadow h-[38px] w-[38px] rounded-xl flex items-center justify-center shrink-0"
+                          className="bg-white shadow h-[40px] w-[40px] rounded-xl flex items-center justify-center shrink-0"
                         >
 
                           <Minus size={18} />
 
                         </button>
 
-                        <span className="text-xl font-bold w-[50px] text-center shrink-0">
+                        <span className="text-xl font-bold w-[55px] min-w-[55px] text-center shrink-0 font-mono">
                           {item.quantity}
                         </span>
 
@@ -212,7 +215,7 @@ const Cart = () => {
                               )
                             )
                           }
-                          className="bg-white shadow h-[38px] w-[38px] rounded-xl flex items-center justify-center shrink-0"
+                          className="bg-white shadow h-[40px] w-[40px] rounded-xl flex items-center justify-center shrink-0"
                         >
 
                           <Plus size={18} />
@@ -221,11 +224,11 @@ const Cart = () => {
 
                       </div>
 
-                      {/* Total */}
+                      {/* Total Price */}
 
-                      <div className="min-w-[170px] h-[60px] flex items-center justify-end shrink-0">
+                      <div className="w-full sm:w-[240px] h-[60px] flex items-center sm:justify-end shrink-0">
 
-                        <h2 className="text-3xl font-bold text-[#3e2c23] text-right break-all">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-[#3e2c23] w-full text-left sm:text-right whitespace-nowrap font-mono">
                           ₹ {item.totalPrice}
                         </h2>
 
@@ -257,19 +260,19 @@ const Cart = () => {
                     Total Items
                   </span>
 
-                  <span className="font-bold text-xl">
+                  <span className="font-bold text-xl font-mono">
                     {cartItems.length}
                   </span>
 
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
 
                   <span className="text-[#7a685d] text-lg">
                     Total Amount
                   </span>
 
-                  <span className="font-bold text-2xl text-[#3e2c23] break-all text-right">
+                  <span className="font-bold text-2xl text-[#3e2c23] whitespace-nowrap font-mono">
                     ₹ {totalAmount}
                   </span>
 
